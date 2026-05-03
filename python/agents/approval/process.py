@@ -64,11 +64,4 @@ async def approval_agent_process(current_po_json, matched_result_json= None):
     system_prompt, user_prompt = await approval_prompts(json.dumps(current_po_json), json.dumps(matched_result_json))
     response = await gpt_model(system_prompt, user_prompt)
     if response is not None:
-        merged = {
-                    **current_po_json,
-                    **response
-                }
-        with open("test.json", "w", encoding="utf-8") as f:
-            json.dump(merged, f, indent=4, ensure_ascii=False)
-        
-        return merged
+        return response

@@ -5,7 +5,7 @@ import asyncio
 import base64
 
 from python.agents.extraction.process import extration_agent_process
-from python.knowledgebase.db import vector_search
+from python.knowledgebase.db import vector_search, save_results_to_db
 from python.agents.approval.process import approval_agent_process
 
 from dotenv import load_dotenv
@@ -58,6 +58,9 @@ async def realtime_reading_emails():
                                     if response:
                                         result = await vector_search(response)
                                         approve_res = await approval_agent_process(response, result)
+                                        status = await save_results_to_db(response, approve_res)
+                                        print(approve_res)
+                                        print(status)
                                             
                             else:
                                 print(filename, "is not a pdf")

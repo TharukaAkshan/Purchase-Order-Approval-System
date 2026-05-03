@@ -103,3 +103,33 @@ async def vector_search(response):
     except Exception as ex:
         print(f"vector search failed: {ex}")
         return None
+
+    
+    
+async def save_results_to_db(extractions: dict, approval: dict):
+
+    try:
+        conn = await get_async_connection()
+        if conn:
+            approval_status = approval.get("approval_status")
+            reason = approval.get("reason")
+
+            query = """
+                INSERT INTO po.approved_purchase_orders(
+                    extractions, approval_status, reason
+                )
+                VALUES ($1::jsonb, $2, $3);
+            """
+
+            await conn.execute(
+                query,
+                json.dumps(extractions),
+                approval_status,
+                reason
+            )
+
+            print("All results saved in DB")
+            return {"status": "success"}
+
+    except Exception as e:
+        print("Results saving failed:", e)
