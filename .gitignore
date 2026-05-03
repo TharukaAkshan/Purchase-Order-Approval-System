@@ -3,3 +3,4 @@
 .md
 python/Test/
 Docs/
+*.json

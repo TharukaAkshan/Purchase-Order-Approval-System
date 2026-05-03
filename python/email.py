@@ -5,6 +5,8 @@ import asyncio
 import base64
 
 from python.agents.extraction.process import extration_agent_process
+from python.knowledgebase.db import vector_search
+from python.agents.approval.process import approval_agent_process
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -16,7 +18,7 @@ try:
     # Connect to Gmail
     mail = imaplib.IMAP4_SSL("imap.gmail.com")
     mail.login(EMAIL, APP_PASSWORD)
-    mail.select("inbox")
+    # mail.select("inbox")
     print("Gmail connection created")
 except Exception as ex:
     print("Gmail connection failed:", ex)
@@ -26,6 +28,7 @@ async def realtime_reading_emails():
     try:
         while True:
             try:
+                mail.select("inbox")
                 status, messages = mail.search(None, '(UNSEEN SUBJECT "purchase order")')
                 print("new email search: ", status)
             except Exception as ex:
@@ -48,16 +51,18 @@ async def realtime_reading_emails():
                             
                             if filename.endswith(".pdf"):
                                 file_bytes = part.get_payload(decode=True)
+                                
+                                #agent process 
                                 if file_bytes:
                                     response = await extration_agent_process(file_bytes)
-                                
-                                    print(filename, "reading successfull")
-                                    print(response)
+                                    if response:
+                                        result = await vector_search(response)
+                                        approve_res = await approval_agent_process(response, result)
+                                            
                             else:
                                 print(filename, "is not a pdf")
                                 continue
-                    else:
-                        mail.store(num, '+FLAGS', '\\Seen')
+                            
             else:
                 print("No new emails found. try again after 10sec")
                 await asyncio.sleep(10)
