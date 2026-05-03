@@ -2,6 +2,10 @@ import imaplib
 import email
 import os
 import asyncio
+import base64
+
+from python.agents.extraction.process import extration_agent_process
+
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -38,14 +42,17 @@ async def realtime_reading_emails():
                     
                     print("checking attachemnets for email:", msg["Subject"])
 
-                    attachment_list = []
                     for part in msg.walk():
                         if part.get_content_disposition() == "attachment":
                             filename = part.get_filename()
                             
                             if filename.endswith(".pdf"):
-                                # attachment_list.append(part.get_payload(decode=True))
-                                print(filename, "reading successfull")
+                                file_bytes = part.get_payload(decode=True)
+                                if file_bytes:
+                                    response = await extration_agent_process(file_bytes)
+                                
+                                    print(filename, "reading successfull")
+                                    print(response)
                             else:
                                 print(filename, "is not a pdf")
                                 continue
@@ -58,3 +65,4 @@ async def realtime_reading_emails():
             
     except Exception as e:
         print("realtime reading proccess failed:", e)
+        
