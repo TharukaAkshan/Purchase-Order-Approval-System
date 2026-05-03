@@ -2,7 +2,6 @@ import imaplib
 import email
 import os
 import asyncio
-import base64
 
 from python.agents.extraction.process import extration_agent_process
 from python.knowledgebase.db import vector_search, save_results_to_db

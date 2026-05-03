@@ -16,8 +16,6 @@ schema = os.getenv("SCHEMA")
 table_name = os.getenv("TABLE_NAME")
 
 
-
-
 async def get_async_connection():
     try:
         # ssl_context = ssl.create_default_context()
